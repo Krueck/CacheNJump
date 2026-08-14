@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
-import Level1Scene from './scenes/Level1Scene.js'; // NEU
+import Level1Scene from './scenes/Level1Scene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -13,10 +13,10 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 600 },
-            debug: false // Ändere das auf true, um die Hitboxen zu sehen!
+            debug: false
         }
     },
-    scene: [BootScene, MenuScene, Level1Scene] // NEU hinzugefügt
+    scene: [BootScene, MenuScene, Level1Scene]
 };
 
 const game = new Phaser.Game(config);

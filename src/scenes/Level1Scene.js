@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import Player from '../objects/Player.js';
+import Enemy from '../objects/Enemy.js';
+import Tick from '../objects/Tick.js';
+import Mosquito from '../objects/Mosquito.js';
 
 export default class Level1Scene extends Phaser.Scene {
     constructor() {
@@ -7,20 +10,30 @@ export default class Level1Scene extends Phaser.Scene {
     }
 
     create() {
+        // --- 0. HINTERGRUND ---
+        this.bg = this.add.tileSprite(0, 0, 800, 600, 'bg');
+        this.bg.setOrigin(0, 0);
+        this.bg.setScrollFactor(0);
+
         // --- 1. WELT & PLATTFORMEN ---
         this.physics.world.setBounds(0, 0, 2000, 600);
         this.platforms = this.physics.add.staticGroup();
 
-        for (let i = 0; i < 5; i++) {
-            this.platforms.create(200 + (i * 400), 584, 'platform');
-        }
+        // Boden mit Abgründen
+        const groundPositions = [150, 600, 1120, 1750];
+        groundPositions.forEach(x => {
+            const ground = this.platforms.create(x, 584, 'ground');
+            ground.setScale(0.5).refreshBody();
+        });
 
-        this.platforms.create(500, 450, 'platform').setScale(0.5, 1).refreshBody();
-        this.platforms.create(900, 350, 'platform').setScale(0.3, 1).refreshBody();
-        this.platforms.create(1300, 250, 'platform').setScale(0.5, 1).refreshBody();
+        // Schwebende Balken
+        this.platforms.create(400, 440, 'beam').setScale(0.35).refreshBody();
+        this.platforms.create(850, 340, 'beam').setScale(0.45).refreshBody();
+        this.platforms.create(1350, 260, 'beam').setScale(0.35).refreshBody();
+        this.platforms.create(1700, 380, 'beam').setScale(0.35).refreshBody();
 
         // --- 2. SPIELER ---
-        this.player = new Player(this, 100, 400);
+        this.player = new Player(this, 80, 400);
         
         this.cameras.main.setBounds(0, 0, 2000, 600);
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -28,74 +41,123 @@ export default class Level1Scene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.platforms);
 
-        // --- 3. GEOCACHES ---
+        // --- 3. GEGNER (Muggel, Zecken & Mücken) ---
+        this.enemies = this.physics.add.group({ runChildUpdate: true });
+
+        // Muggel (Boden / Balken)
+        this.enemies.add(new Enemy(this, 500, 500, 450, 700, 170));
+        this.enemies.add(new Enemy(this, 850, 300, 760, 1530, 140));
+
+        // Zecken (Krabbeln auf Balken/Boden)
+        this.enemies.add(new Tick(this, 370, 400, 320, 470));
+        this.enemies.add(new Tick(this, 1700, 340, 1620, 1780));
+
+        // Mücken (Fliegen in der Luft)
+  
+        this.physics.add.collider(this.enemies, this.platforms);
+        this.physics.add.overlap(this.player, this.enemies, this.handleEnemyCollision, null, this);
+
+        // --- 4. GEOCACHES ---
         this.caches = this.physics.add.group();
         
-        // Echte "Koordinaten" im Level
         const positions = [
-            [300, 500], [500, 400], [900, 300], [1300, 200], [1600, 500],
-            [1850, 450], [1100, 500], [700, 500], [1400, 500], [1950, 350]
+            [250, 480], [400, 370], [620, 480], [850, 260], [1120, 480],
+            [1350, 180], [1550, 480], [1700, 300], [1850, 480], [1950, 350]
         ];
 
         positions.forEach(pos => {
             const cache = this.caches.create(pos[0], pos[1], 'cache');
-            cache.body.setAllowGravity(false); // Caches fallen nicht runter
+            cache.body.setAllowGravity(false); 
+            cache.setScale(0.22);
+
+            this.tweens.add({
+                targets: cache,
+                y: pos[1] - 8, 
+                duration: 700 + Math.random() * 200,
+                yoyo: true, 
+                repeat: -1, 
+                ease: 'Sine.easeInOut'
+            });
         });
 
-        // Schwebende Animation (Tween)
-        this.tweens.add({
-            targets: this.caches.getChildren(),
-            y: '-=8', // Bewege sie 8 Pixel nach oben...
-            duration: 700,
-            yoyo: true, // ...und wieder zurück
-            repeat: -1, // Endlos wiederholen
-            ease: 'Sine.easeInOut'
-        });
-
-        // Kollisionsabfrage: Spieler berührt Cache (overlap, nicht collider, damit man nicht dran hängen bleibt)
         this.physics.add.overlap(this.player, this.caches, this.collectCache, null, this);
 
-        // --- 4. UI (PUNKTESTAND) ---
+        // --- 5. UI ---
         this.score = 0;
-        this.scoreText = this.add.text(20, 20, 'Caches: 0 / 10', {
-            fontSize: '20px',
-            fill: '#ffffff',
-            fontStyle: 'bold'
+        this.scoreText = this.add.text(90, 65, 'Caches: 0 / 10', {
+            fontSize: '22px',
+            fill: '#000000',
+            fontStyle: 'bold',
+            stroke: '#ffffff',
+            strokeThickness: 4
         });
-        // WICHTIG: Text bewegt sich nicht mit der Kamera mit!
         this.scoreText.setScrollFactor(0); 
+        this.scoreText.setDepth(100);
     }
 
     update() {
         this.player.update();
+
+        // Absturz in Abgrund
+        if (this.player.y > 620) {
+            this.scene.restart();
+        }
+
+        // Gegner im Level aktualisieren
+        this.enemies.getChildren().forEach(enemy => {
+            if (enemy.update) {
+                enemy.update();
+            }
+        });
+
+        if (this.bg) {
+            this.bg.tilePositionX = this.cameras.main.scrollX * 0.3;
+        }
     }
 
-// --- 5. EINSAMMELN-LOGIK ---
+    handleEnemyCollision(player, enemy) {
+        const isJumpingOnTop = player.body.velocity.y > 0 && player.y < enemy.y - 10;
+
+        if (isJumpingOnTop) {
+            player.setVelocityY(-350);
+
+            const emitter = this.add.particles(enemy.x, enemy.y, 'spark', {
+                speed: { min: 50, max: 150 },
+                lifespan: 400,
+                scale: { start: 0.5, end: 0 },
+                blendMode: 'ADD',
+                emitting: false 
+            });
+            emitter.explode(16);
+
+            enemy.destroy();
+        } else {
+            this.scene.restart();
+        }
+    }
+
     collectCache(player, cache) {
-        // 1. Partikeleffekt erzeugen
+        this.tweens.killTweensOf(cache);
+
         const emitter = this.add.particles(cache.x, cache.y, 'spark', {
-            speed: { min: 50, max: 150 }, // Fliegen unterschiedlich schnell
-            lifespan: 400,                // Leben für 400 Millisekunden
-            scale: { start: 0.4, end: 0 },// Werden immer kleiner
-            blendMode: 'ADD',             // Leucht-Effekt
-            emitting: false               // Nicht dauerhaft sprühen...
+            speed: { min: 50, max: 150 },
+            lifespan: 400,
+            scale: { start: 0.4, end: 0 },
+            blendMode: 'ADD',
+            emitting: false 
         });
         
-        // ...sondern genau jetzt 16 Partikel explodieren lassen!
         emitter.explode(16);
 
-        // 2. Cache verschwindet
         cache.destroy();
         
-        // 3. Punkte hochzählen
         this.score++;
         this.scoreText.setText(`Caches: ${this.score} / 10`);
 
-        // 4. Gewinnbedingung prüfen
         if (this.score >= 10) {
-            this.add.text(400, 300, 'LEVEL GESCHAFFT!', {
-                fontSize: '40px',
-                fill: '#00ff00',
+            this.add.text(400, 300, 'LEVEL GESCHAFFT! - Glückwunsch die Koordinaten sind: 52.545509, 13.036695', {
+                fontSize: '15px',
+                fill: '#15ff00',
                 fontStyle: 'bold',
                 stroke: '#000000',
                 strokeThickness: 4
