@@ -1,2 +1,6 @@
 node_modules/
+<<<<<<< HEAD
 dist/
+=======
+dist/
+>>>>>>> 6b5a020 (Spielerauswahl und Mosquitos hinzugefügt)

@@ -45,7 +45,6 @@ export default class Level1Scene extends Phaser.Scene {
         this.enemies = this.physics.add.group({ runChildUpdate: true });
 
         // Muggel (Boden / Balken)
-        this.enemies.add(new Enemy(this, 500, 500, 450, 700, 170));
         this.enemies.add(new Enemy(this, 850, 300, 760, 1530, 140));
 
         // Zecken (Krabbeln auf Balken/Boden)
@@ -53,7 +52,9 @@ export default class Level1Scene extends Phaser.Scene {
         this.enemies.add(new Tick(this, 1700, 340, 1620, 1780));
 
         // Mücken (Fliegen in der Luft)
-  
+        this.enemies.add(new Mosquito(this, 600, 260));
+        this.enemies.add(new Mosquito(this, 1250, 180));
+
         this.physics.add.collider(this.enemies, this.platforms);
         this.physics.add.overlap(this.player, this.enemies, this.handleEnemyCollision, null, this);
 
@@ -136,34 +137,31 @@ export default class Level1Scene extends Phaser.Scene {
         }
     }
 
-    collectCache(player, cache) {
-        this.tweens.killTweensOf(cache);
+    // In Level1Scene.js:
+collectCache(player, cache) {
+    this.tweens.killTweensOf(cache);
+    cache.destroy();
+    
+    this.score++;
+    this.scoreText.setText(`Caches: ${this.score} / 10`);
 
-        const emitter = this.add.particles(cache.x, cache.y, 'spark', {
-            speed: { min: 50, max: 150 },
-            lifespan: 400,
-            scale: { start: 0.4, end: 0 },
-            blendMode: 'ADD',
-            emitting: false 
+    if (this.score >= 10) {
+        this.add.text(400, 300, 'Glückwunsch - du hast alle Dosen im Wald gefunden. \n Jetzt geht es in die Stadt.', {
+            fontSize: '20px',
+            fill: '#15ff00',
+            fontStyle: 'bold',
+            align: 'center',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setScrollFactor(0);
+        
+        this.physics.pause();
+
+        // Nach 2 Sekunden (2000 ms) automatisch zu Level 2 wechseln
+        this.time.delayedCall(5000, () => {
+            this.scene.start('Level2');
         });
-        
-        emitter.explode(16);
-
-        cache.destroy();
-        
-        this.score++;
-        this.scoreText.setText(`Caches: ${this.score} / 10`);
-
-        if (this.score >= 10) {
-            this.add.text(400, 300, 'LEVEL GESCHAFFT! - Glückwunsch die Koordinaten sind: 52.545509, 13.036695', {
-                fontSize: '15px',
-                fill: '#15ff00',
-                fontStyle: 'bold',
-                stroke: '#000000',
-                strokeThickness: 4
-            }).setOrigin(0.5).setScrollFactor(0);
-            
-            this.physics.pause();
-        }
     }
 }
+    }
+    

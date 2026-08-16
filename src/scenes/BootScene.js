@@ -18,13 +18,18 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('enemy', 'assets/Muggel.png');
         this.load.image('zecke', 'assets/Zecke.png');
         this.load.image('Mosquito', 'assets/Mosquito.png');
+        this.load.image('enemy2', 'assets/Stadtfrau.png');
+        this.load.image('enemy3', 'assets/Stadtmuggel.png');
+        this.load.image('enemy4', 'assets/Hundehaufen.png');
         // Level-Grafiken
         this.load.image('ground', 'assets/Boden.png');
         this.load.image('beam', 'assets/Balken.png');
         this.load.image('cache', 'assets/Cache 1.png');
         this.load.image('bg', 'assets/Wald.png');
+        this.load.image('bgStadt', 'assets/Stadt.png');
 
-        // Partikel
+    this.load.image('menuBG', 'assets/Cover.png'); 
+       // Partikel
         this.load.image('spark', 'https://labs.phaser.io/assets/particles/yellow.png');
     }
 
