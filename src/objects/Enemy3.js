@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, minX, maxX, speed = 160) {
-        super(scene, x, y, 'enemy');
+        super(scene, x, y, 'enemy3');
 
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -10,23 +10,24 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setCollideWorldBounds(true);
         this.setBounce(0);
 
-        this.setScale(0.50);
+        this.setScale(0.15);
         
         this.minX = minX;
         this.maxX = maxX;
         this.speed = speed; // Geschwindigkeit anpassbar (Standard: 160)
-        this.direction = 1;
+        this.direction = -1;
     }
 
     update() {
         if (this.x <= this.minX) {
             this.direction = 1;
-            this.setFlipX(false);
+            this.setFlipX(true);
         } else if (this.x >= this.maxX) {
             this.direction = -1;
-            this.setFlipX(true);
+            this.setFlipX(false);
         }
 
         this.setVelocityX(this.speed * this.direction);
     }
+    
 }

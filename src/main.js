@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
+import './style.css';
 import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import Level1Scene from './scenes/Level1Scene.js';
+import Level2Scene from './scenes/Level2Scene.js'; // Importieren
 
 const config = {
     type: Phaser.AUTO,
@@ -16,7 +18,7 @@ const config = {
             debug: false
         }
     },
-    scene: [BootScene, MenuScene, Level1Scene]
+    scene: [BootScene, MenuScene, Level1Scene, Level2Scene]
 };
 
 const game = new Phaser.Game(config);
