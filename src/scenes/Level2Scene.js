@@ -46,7 +46,7 @@ this.physics.world.setBounds(0, 0, 2500, 600);
         this.enemies.add(new Enemy3(this, 1650, 510, 1200, 2200, 120));
         
         // Kackehaufen
-        this.enemies.add(new Enemy4(this, 150, 510, 650, 850, 160));
+        this.enemies.add(new Enemy4(this, 190, 510, 650, 850, 160));
         this.enemies.add(new Enemy4(this, 550, 510, 650, 850, 160));
         this.enemies.add(new Enemy4(this, 2100, 530, 1980, 2220, 160));
         this.enemies.add(new Enemy4(this, 1700, 330, 1630, 1770));
