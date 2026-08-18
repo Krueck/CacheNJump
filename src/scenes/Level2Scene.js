@@ -127,7 +127,7 @@ this.enemies.getChildren().forEach(enemy => {
         this.scoreText.setText(`Level 2 - Caches: ${this.score} / 10`);
 
         if (this.score >= 10) {
-            this.add.text(400, 300, 'Herzlichen Glückwunsch - Alle Caches gefunden.\nJetzt wartet die echte Dose auf dich.\nBitte sei vorsichtig.\nDie Schienen müssen zu keinem Zeitpunkt betreten werden.\nFinale Koordinaten: 52.544930, 13.036920 - du musst die Treppe runter gehen. Nimm eine kleine Erhöhungsmöglichkeit mit.',
+            this.add.text(400, 300, 'Herzlichen Glückwunsch - Alle Caches gefunden.\n Jetzt wartet die echte Dose auf dich.\n Bitte sei vorsichtig.\n Die Schienen müssen zu keinem Zeitpunkt betreten werden.\n Finale Koordinaten: 52.544930, 13.036920 - \n du musst die Treppe runter gehen. \n Nimm eine kleine Erhöhungsmöglichkeit mit.',
                 {
                 fontSize: '18px',
                 fill: '#15ff00',
